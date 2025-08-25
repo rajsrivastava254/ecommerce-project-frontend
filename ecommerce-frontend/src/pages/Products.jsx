@@ -21,12 +21,20 @@ const Products = () => {
         return response.json();
       })
       .then((data) => {
-        setProducts(data);
+        // Support both paginated and plain array
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else if (data && Array.isArray(data.content)) {
+          setProducts(data.content);
+        } else {
+          setProducts([]);
+        }
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
         setError("Failed to load products. Please try again later.");
+        setProducts([]);
         setLoading(false);
       });
   }, []);
@@ -44,11 +52,14 @@ const Products = () => {
     });
   };
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.id.toString().includes(searchTerm)
-  );
+  // Defensive filtering in case products is not an array
+  const filteredProducts = Array.isArray(products)
+    ? products.filter(
+        (product) =>
+          product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.id?.toString().includes(searchTerm)
+      )
+    : [];
 
   if (loading) return <p className="loading">Loading products...</p>;
   if (error) return <p className="error">{error}</p>;
@@ -67,10 +78,6 @@ const Products = () => {
       </div>
       <div className="products-grid">
         {filteredProducts.map((product) => {
-          const imageUrl = product.imageUrl
-            ? `https://ecommerce-project-backend-z4ut.onrender.com/images/${product.imageUrl}`
-            : "/images/default-image.jpg";
-
           return (
             <div key={product.id} className="product-card">
               <Link to={`/products/${product.id}`} className="product-link">
@@ -84,7 +91,7 @@ const Products = () => {
                 />
                 <h3 className="product-name">{product.name}</h3>
               </Link>
-              <p className="product-price">₹{product.price.toLocaleString()}</p>
+              <p className="product-price">₹{product.price?.toLocaleString()}</p>
               <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
                 🛒 Add to Cart
               </button>
