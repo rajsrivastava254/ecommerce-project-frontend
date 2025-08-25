@@ -13,7 +13,7 @@ const Products = () => {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+    fetch("https://ecommerce-project-backend-z4ut.onrender.com/api/products")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch products");
@@ -68,7 +68,7 @@ const Products = () => {
       <div className="products-grid">
         {filteredProducts.map((product) => {
           const imageUrl = product.imageUrl
-            ? `http://localhost:8080/images/${product.imageUrl}`
+            ? `https://ecommerce-project-backend-z4ut.onrender.com/images/${product.imageUrl}`
             : "/images/default-image.jpg";
 
           return (
